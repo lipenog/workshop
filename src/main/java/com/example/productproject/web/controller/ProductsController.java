@@ -66,4 +66,12 @@ public class ProductsController {
         ProductsDTO response = new ProductsDTO(products);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<Void> productsDeleteByID(@PathVariable("id") Long id){
+        Optional<Products> optionalProducts = productsService.getProductByID(id);
+        if(optionalProducts.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        productsService.deleteProduct(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
