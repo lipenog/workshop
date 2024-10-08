@@ -13,8 +13,6 @@ import com.stripe.param.ProductUpdateParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,13 +29,7 @@ public class ProductsService {
         Products productsEntity = new Products(productsDTO);
 
         // create the product inside stripe
-        Product StripeProduct = Product.create(ProductCreateParams.builder()
-                .setName(productsEntity.getName())
-                .setDescription(productsEntity.getDescription())
-                        .setDefaultPriceData(ProductCreateParams.DefaultPriceData.builder()
-                                .setCurrency("brl")
-                                .setUnitAmount((long) (productsEntity.getPrice() * 100)).build())
-                .build());
+        Product StripeProduct = creteStripeProduct(productsEntity.getName(), productsEntity.getDescription(), productsEntity.getPrice());
 
         productsEntity.setId(null);
         productsEntity.setStripeID(StripeProduct.getId());
@@ -53,25 +45,7 @@ public class ProductsService {
         productsEntity.setCreation(original.getCreation());
         productsEntity.setStripeID(original.getStripeID());
 
-        Product product = Product.retrieve(productsEntity.getStripeID());
-        Price oldPrice = Price.retrieve(product.getDefaultPrice());
-
-        // create a new price to that product (Since stripe does not let you update the price)
-        Price price = Price.create(PriceCreateParams.builder()
-                .setCurrency("brl")
-                .setUnitAmount((long) (productsEntity.getPrice() * 100))
-                .setProduct(productsEntity.getStripeID())
-                .build());
-
-        // update stripe product
-        product.update(ProductUpdateParams.builder()
-                .setName(productsEntity.getName())
-                .setDescription(productsEntity.getDescription())
-                .setDefaultPrice(price.getId())
-                .build());
-
-        // set the old price as inactive
-        oldPrice.update(PriceUpdateParams.builder().setActive(false).build());
+        updateStripeProduct(productsEntity.getStripeID(), productsEntity.getName(), productsEntity.getDescription(), productsEntity.getPrice());
 
         return productsRepository.save(productsEntity);
     }
@@ -89,5 +63,47 @@ public class ProductsService {
         Product product = Product.retrieve(products.getStripeID());
         product.update(ProductUpdateParams.builder().setActive(false).build());
         productsRepository.delete(products);
+    }
+
+    private Product creteStripeProduct(String name, String description, Float price) throws StripeException {
+        return Product.create(ProductCreateParams.builder()
+                .setName(name)
+                .setDescription(description)
+                .setDefaultPriceData(ProductCreateParams.DefaultPriceData.builder()
+                        .setCurrency("brl")
+                        .setUnitAmount((long) (price * 100)).build())
+                .build());
+    }
+
+    private void updateStripeProduct(String productID, String name, String description, Float productPrice) throws StripeException {
+        Product product = Product.retrieve(productID);
+        Price oldPrice = Price.retrieve(product.getDefaultPrice());
+
+        ProductUpdateParams.Builder params = ProductUpdateParams.builder();
+
+        // set the new name and price
+        params.setName(name);
+        params.setDescription(description);
+
+        // if the price hasn't changed update just the product
+        if(oldPrice.getUnitAmount().equals((long) (productPrice * 100))){
+            product.update(params.build());
+            return;
+        }
+
+        // create a new price to that product (Since stripe does not let you update the price)
+        Price price = Price.create(PriceCreateParams.builder()
+                .setCurrency("brl")
+                .setUnitAmount((long) (productPrice * 100))
+                .setProduct(productID)
+                .build());
+
+        params.setDefaultPrice(price.getId());
+
+        // update stripe product
+        Product resource = product.update(params.build());
+
+        // set the old price as inactive
+        oldPrice.update(PriceUpdateParams.builder().setActive(false).build());
     }
 }
