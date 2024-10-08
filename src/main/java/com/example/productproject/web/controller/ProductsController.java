@@ -1,6 +1,6 @@
 package com.example.productproject.web.controller;
 
-import com.example.productproject.web.dto.ProductDTO;
+import com.example.productproject.web.dto.ProductsDTO;
 import com.example.productproject.web.entity.Products;
 import com.example.productproject.web.service.ProductsService;
 import jakarta.validation.ConstraintViolation;
@@ -10,10 +10,10 @@ import jakarta.validation.ValidatorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -26,15 +26,30 @@ public class ProductsController {
     }
 
     @PostMapping("/products")
-    public ResponseEntity<ProductDTO> productPost(@RequestBody ProductDTO productDTO){
+    public ResponseEntity<ProductsDTO> productsPost(@RequestBody ProductsDTO productsDTO){
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-        Set<ConstraintViolation<ProductDTO>> violations = validator.validate(productDTO);
+        Set<ConstraintViolation<ProductsDTO>> violations = validator.validate(productsDTO);
         if(!violations.isEmpty()){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        Products products = productsService.createProduct(productDTO);
-        ProductDTO response = new ProductDTO(products);
+        Products products = productsService.createProduct(productsDTO);
+        ProductsDTO response = new ProductsDTO(products);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+    
+    @GetMapping("/products")
+    public ResponseEntity<List<ProductsDTO>> productsGet(){
+        List<Products> products = productsService.getAllProducts();
+        List<ProductsDTO> response = products.stream().map(ProductsDTO::new).toList();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/products/{id}")
+    public ResponseEntity<ProductsDTO> productsGetByID(@PathVariable("id") Long id){
+        Optional<Products> optionalProducts = productsService.getProductByID(id);
+        if(optionalProducts.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ProductsDTO response = new ProductsDTO(optionalProducts.get());
+        return ResponseEntity.ok(response);
     }
 }

@@ -1,6 +1,6 @@
 package com.example.productproject.web.entity;
 
-import com.example.productproject.web.dto.ProductDTO;
+import com.example.productproject.web.dto.ProductsDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @Entity
@@ -23,11 +22,11 @@ public class Products {
     private String description;
     private Float price;
     private LocalDate creation;
-    public Products(ProductDTO productDTO){
+    public Products(ProductsDTO productsDTO){
         this.id = null;
-        this.name = productDTO.getName();
-        this.description = productDTO.getDescription();
-        this.price = productDTO.getPrice();
+        this.name = productsDTO.getName();
+        this.description = productsDTO.getDescription();
+        this.price = productsDTO.getPrice();
     }
 
     @PrePersist

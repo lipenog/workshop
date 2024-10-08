@@ -1,10 +1,13 @@
 package com.example.productproject.web.service;
 
-import com.example.productproject.web.dto.ProductDTO;
+import com.example.productproject.web.dto.ProductsDTO;
 import com.example.productproject.web.entity.Products;
 import com.example.productproject.web.repository.ProductsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductsService {
@@ -15,8 +18,16 @@ public class ProductsService {
         this.productsRepository = productsRepository;
     }
 
-    public Products createProduct(ProductDTO productDTO){
-        Products productsEntity = new Products(productDTO);
+    public Products createProduct(ProductsDTO productsDTO){
+        Products productsEntity = new Products(productsDTO);
         return productsRepository.save(productsEntity);
+    }
+    
+    public List<Products> getAllProducts(){
+        return productsRepository.findAll();
+    }
+    
+    public Optional<Products> getProductByID(Long id){
+        return productsRepository.findById(id);
     }
 }

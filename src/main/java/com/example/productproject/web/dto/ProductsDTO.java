@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @AllArgsConstructor @NoArgsConstructor
 @Getter
-public class ProductDTO {
+public class ProductsDTO {
     private Long id;
     @NotNull @NotBlank
     @Size(min = 3, max = 100)
@@ -23,7 +23,7 @@ public class ProductDTO {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDate creation;
 
-    public ProductDTO(Products products){
+    public ProductsDTO(Products products){
         this.id = products.getId();
         this.name = products.getName();
         this.description = products.getDescription();
