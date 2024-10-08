@@ -27,9 +27,7 @@ public class ProductsController {
 
     @PostMapping("/products")
     public ResponseEntity<ProductsDTO> productsPost(@RequestBody ProductsDTO productsDTO){
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        Set<ConstraintViolation<ProductsDTO>> violations = validator.validate(productsDTO);
+        Set<ConstraintViolation<ProductsDTO>> violations = verifyDTO(productsDTO);
         if(!violations.isEmpty()){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -58,6 +56,11 @@ public class ProductsController {
 
     @PutMapping("/products/{id}")
     public ResponseEntity<ProductsDTO> productsPutByID(@PathVariable("id") Long id, @RequestBody ProductsDTO productsDTO){
+        Set<ConstraintViolation<ProductsDTO>> violations = verifyDTO(productsDTO);
+        if(!violations.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         Optional<Products> optionalProducts = productsService.getProductByID(id);
         if(optionalProducts.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
@@ -73,5 +76,13 @@ public class ProductsController {
         if(optionalProducts.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         productsService.deleteProduct(id);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private Set<ConstraintViolation<ProductsDTO>> verifyDTO(ProductsDTO productsDTO){
+        Validator validator;
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            validator = factory.getValidator();
+            return validator.validate(productsDTO);
+        }
     }
 }
