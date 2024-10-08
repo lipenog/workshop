@@ -4,8 +4,11 @@ import com.example.productproject.web.dto.ProductsDTO;
 import com.example.productproject.web.entity.Products;
 import com.example.productproject.web.repository.ProductsRepository;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Price;
 import com.stripe.model.Product;
+import com.stripe.param.PriceUpdateParams;
 import com.stripe.param.ProductCreateParams;
+import com.stripe.param.ProductUpdateParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +47,10 @@ public class ProductsService {
         return productsRepository.findById(id);
     }
 
-    public void deleteProduct(Long id){
-        productsRepository.deleteById(id);
+    public void deleteProduct(Products products) throws StripeException {
+        // Stripe does not support product deletion, so we are just setting the product as inactive and deleted
+        Product resource = Product.retrieve(products.getStripeID());
+        resource.update(ProductUpdateParams.builder().setActive(false).build());
+        productsRepository.delete(products);
     }
 }

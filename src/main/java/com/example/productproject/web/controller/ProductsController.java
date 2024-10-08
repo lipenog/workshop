@@ -73,10 +73,10 @@ public class ProductsController {
     }
 
     @DeleteMapping("/products/{id}")
-    public ResponseEntity<Void> productsDeleteByID(@PathVariable("id") Long id){
+    public ResponseEntity<Void> productsDeleteByID(@PathVariable("id") Long id) throws StripeException {
         Optional<Products> optionalProducts = productsService.getProductByID(id);
         if(optionalProducts.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        productsService.deleteProduct(id);
+        productsService.deleteProduct(optionalProducts.get());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
