@@ -30,9 +30,8 @@ public class Products {
         this.price = productsDTO.getPrice();
     }
 
-    @PrePersist @PreUpdate
+    @PrePersist
     private void setCreationDate(){
         this.creation = LocalDate.now(ZoneId.of("UTC"));
     }
-
 }

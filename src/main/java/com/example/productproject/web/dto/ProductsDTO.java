@@ -11,7 +11,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 @AllArgsConstructor @NoArgsConstructor
-@Getter @Setter
+@Getter
 public class ProductsDTO {
     private Long id;
     @NotNull(message = "products.error.nameIsNull") @NotBlank(message = "products.error.nameIsNull")

@@ -33,10 +33,7 @@ public class ProductsController {
         if(!violations.isEmpty()){
             throw new InvalidDtoException(violations);
         }
-
-
-        productsDTO.setId(null);
-        Products products = productsService.saveProduct(productsDTO);
+        Products products = productsService.createProduct(productsDTO);
         ProductsDTO response = new ProductsDTO(products);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -66,8 +63,7 @@ public class ProductsController {
         Optional<Products> optionalProducts = productsService.getProductByID(id);
         if(optionalProducts.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-        productsDTO.setId(optionalProducts.get().getId());
-        Products products = productsService.saveProduct(productsDTO);
+        Products products = productsService.updateProduct(productsDTO, optionalProducts.get());
         ProductsDTO response = new ProductsDTO(products);
         return ResponseEntity.ok(response);
     }
