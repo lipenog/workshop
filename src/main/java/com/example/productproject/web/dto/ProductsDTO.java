@@ -14,12 +14,12 @@ import java.time.LocalDate;
 @Getter @Setter
 public class ProductsDTO {
     private Long id;
-    @NotNull @NotBlank
-    @Size(min = 3, max = 100)
+    @NotNull(message = "{products.error.nameIsNull}") @NotBlank(message = "{products.error.nameIsNull}")
+    @Size(min = 3, max = 100, message = "{products.error.nameSize}")
     private String name;
-    @Size(max = 255)
+    @Size(max = 255, message = "{products.error.description}")
     private String description;
-    @Min(0)
+    @Min(value = 0, message = "{products.error.price}")
     private Float price;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDate creation;

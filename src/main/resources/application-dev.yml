@@ -1,4 +1,7 @@
 spring:
+  messages:
+    encoding: UTF-8
+    basename: messages
   datasource:
     url: jdbc:postgresql://localhost:5432/workshop
     username: luiz
