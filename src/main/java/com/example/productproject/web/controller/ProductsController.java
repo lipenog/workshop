@@ -1,5 +1,6 @@
 package com.example.productproject.web.controller;
 
+import com.example.productproject.exception.InvalidDtoException;
 import com.example.productproject.web.dto.ProductsDTO;
 import com.example.productproject.web.entity.Products;
 import com.example.productproject.web.service.ProductsService;
@@ -26,10 +27,10 @@ public class ProductsController {
     }
 
     @PostMapping("/products")
-    public ResponseEntity<ProductsDTO> productsPost(@RequestBody ProductsDTO productsDTO){
-        Set<ConstraintViolation<ProductsDTO>> violations = verifyDTO(productsDTO);
+    public ResponseEntity<ProductsDTO> productsPost(@RequestBody ProductsDTO productsDTO) throws InvalidDtoException {
+        List<String> violations = verifyDTO(productsDTO);
         if(!violations.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new InvalidDtoException(violations);
         }
 
 
@@ -55,10 +56,10 @@ public class ProductsController {
     }
 
     @PutMapping("/products/{id}")
-    public ResponseEntity<ProductsDTO> productsPutByID(@PathVariable("id") Long id, @RequestBody ProductsDTO productsDTO){
-        Set<ConstraintViolation<ProductsDTO>> violations = verifyDTO(productsDTO);
+    public ResponseEntity<ProductsDTO> productsPutByID(@PathVariable("id") Long id, @RequestBody ProductsDTO productsDTO) throws InvalidDtoException {
+        List<String> violations = verifyDTO(productsDTO);
         if(!violations.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new InvalidDtoException(violations);
         }
 
         Optional<Products> optionalProducts = productsService.getProductByID(id);
@@ -78,11 +79,12 @@ public class ProductsController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    private Set<ConstraintViolation<ProductsDTO>> verifyDTO(ProductsDTO productsDTO){
+    private List<String> verifyDTO(ProductsDTO productsDTO){
         Validator validator;
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             validator = factory.getValidator();
-            return validator.validate(productsDTO);
+            Set<ConstraintViolation<ProductsDTO>> violations = validator.validate(productsDTO);
+            return violations.stream().map(ConstraintViolation::getMessage).toList();
         }
     }
 }
