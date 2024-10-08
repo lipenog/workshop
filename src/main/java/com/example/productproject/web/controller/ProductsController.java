@@ -26,7 +26,7 @@ public class ProductsController {
     }
 
     @PostMapping("/products")
-    public ResponseEntity<Products> productPost(@RequestBody ProductDTO productDTO){
+    public ResponseEntity<ProductDTO> productPost(@RequestBody ProductDTO productDTO){
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<ProductDTO>> violations = validator.validate(productDTO);
@@ -34,6 +34,7 @@ public class ProductsController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Products products = productsService.createProduct(productDTO);
-        return new ResponseEntity<>(products, HttpStatus.CREATED);
+        ProductDTO response = new ProductDTO(products);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }
