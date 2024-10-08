@@ -32,7 +32,7 @@ public class ProductsService {
                                 .setCurrency("brl")
                                 .setUnitAmount((long) (productsEntity.getPrice() * 100)).build())
                 .build());
-        StripeProduct.getId();
+        productsEntity.setStripeID(StripeProduct.getId());
         return productsRepository.save(productsEntity);
     }
     

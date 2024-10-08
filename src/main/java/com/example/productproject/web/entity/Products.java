@@ -22,6 +22,7 @@ public class Products {
     private String description;
     private Float price;
     private LocalDate creation;
+    private String stripeID;
     public Products(ProductsDTO productsDTO){
         this.id = productsDTO.getId();
         this.name = productsDTO.getName();

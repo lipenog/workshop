@@ -23,12 +23,14 @@ public class ProductsDTO {
     private Float price;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDate creation;
-
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String stripeID;
     public ProductsDTO(Products products){
         this.id = products.getId();
         this.name = products.getName();
         this.description = products.getDescription();
         this.price = products.getPrice();
         this.creation = products.getCreation();
+        this.stripeID = products.getStripeID();
     }
 }
