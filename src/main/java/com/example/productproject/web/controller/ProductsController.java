@@ -4,6 +4,7 @@ import com.example.productproject.exception.InvalidDtoException;
 import com.example.productproject.web.dto.ProductsDTO;
 import com.example.productproject.web.entity.Products;
 import com.example.productproject.web.service.ProductsService;
+import com.stripe.exception.StripeException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -27,7 +28,7 @@ public class ProductsController {
     }
 
     @PostMapping("/products")
-    public ResponseEntity<ProductsDTO> productsPost(@RequestBody ProductsDTO productsDTO) throws InvalidDtoException {
+    public ResponseEntity<ProductsDTO> productsPost(@RequestBody ProductsDTO productsDTO) throws InvalidDtoException, StripeException {
         List<String> violations = verifyDTO(productsDTO);
         if(!violations.isEmpty()){
             throw new InvalidDtoException(violations);
@@ -56,7 +57,7 @@ public class ProductsController {
     }
 
     @PutMapping("/products/{id}")
-    public ResponseEntity<ProductsDTO> productsPutByID(@PathVariable("id") Long id, @RequestBody ProductsDTO productsDTO) throws InvalidDtoException {
+    public ResponseEntity<ProductsDTO> productsPutByID(@PathVariable("id") Long id, @RequestBody ProductsDTO productsDTO) throws InvalidDtoException, StripeException {
         List<String> violations = verifyDTO(productsDTO);
         if(!violations.isEmpty()){
             throw new InvalidDtoException(violations);
