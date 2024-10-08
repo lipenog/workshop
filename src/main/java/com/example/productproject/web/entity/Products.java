@@ -23,13 +23,13 @@ public class Products {
     private Float price;
     private LocalDate creation;
     public Products(ProductsDTO productsDTO){
-        this.id = null;
+        this.id = productsDTO.getId();
         this.name = productsDTO.getName();
         this.description = productsDTO.getDescription();
         this.price = productsDTO.getPrice();
     }
 
-    @PrePersist
+    @PrePersist @PreUpdate
     private void setCreationDate(){
         this.creation = LocalDate.now(ZoneId.of("UTC"));
     }

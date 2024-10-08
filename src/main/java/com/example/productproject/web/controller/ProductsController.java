@@ -33,7 +33,10 @@ public class ProductsController {
         if(!violations.isEmpty()){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        Products products = productsService.createProduct(productsDTO);
+
+
+        productsDTO.setId(null);
+        Products products = productsService.saveProduct(productsDTO);
         ProductsDTO response = new ProductsDTO(products);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -50,6 +53,17 @@ public class ProductsController {
         Optional<Products> optionalProducts = productsService.getProductByID(id);
         if(optionalProducts.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         ProductsDTO response = new ProductsDTO(optionalProducts.get());
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/products/{id}")
+    public ResponseEntity<ProductsDTO> productsPutByID(@PathVariable("id") Long id, @RequestBody ProductsDTO productsDTO){
+        Optional<Products> optionalProducts = productsService.getProductByID(id);
+        if(optionalProducts.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        productsDTO.setId(optionalProducts.get().getId());
+        Products products = productsService.saveProduct(productsDTO);
+        ProductsDTO response = new ProductsDTO(products);
         return ResponseEntity.ok(response);
     }
 }

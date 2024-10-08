@@ -18,7 +18,7 @@ public class ProductsService {
         this.productsRepository = productsRepository;
     }
 
-    public Products createProduct(ProductsDTO productsDTO){
+    public Products saveProduct(ProductsDTO productsDTO){
         Products productsEntity = new Products(productsDTO);
         return productsRepository.save(productsEntity);
     }
