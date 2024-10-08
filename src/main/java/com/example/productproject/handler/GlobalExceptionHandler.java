@@ -2,6 +2,8 @@ package com.example.productproject.handler;
 
 import com.example.productproject.exception.InvalidDtoException;
 import com.example.productproject.web.controller.ProductsController;
+import com.example.productproject.web.dto.ErrorDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.java.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,10 +33,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidDtoException.class)
-    public ResponseEntity<Void> handleDTOException(InvalidDtoException ex){
+    public ResponseEntity<ErrorDTO> handleDTOException(InvalidDtoException ex){
         String message = formatErrorMessage(ex.getErrorMessages());
-        System.out.println(message);
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        String endpoint = getRequestURI();
+        ErrorDTO errorDTO = new ErrorDTO(endpoint, message, LocalDateTime.now());
+        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
@@ -52,5 +57,13 @@ public class GlobalExceptionHandler {
 
     private String formatErrorMessage(String errorMessage, Locale locale){
         return messageSource.getMessage(errorMessage, null, locale);
+    }
+
+    private String getRequestURI(){
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+        String requestUri = request.getRequestURI();
+        String requestMethod = request.getMethod();
+        return "[" + requestMethod + "] " + requestUri;
     }
 }
