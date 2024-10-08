@@ -1,6 +1,6 @@
 package com.example.productproject.web.entity;
 
-import com.example.productproject.web.dto.Product;
+import com.example.productproject.web.dto.ProductDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,10 +18,10 @@ public class Products {
     private String name;
     private String description;
     private Float price;
-    public Products(Product product){
+    public Products(ProductDTO productDTO){
         this.id = null;
-        this.name = product.name();
-        this.description = product.description();
-        this.price = product.price();
+        this.name = productDTO.getName();
+        this.description = productDTO.getDescription();
+        this.price = productDTO.getPrice();
     }
 }
