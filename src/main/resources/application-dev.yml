@@ -11,6 +11,10 @@ spring:
     locations: classpath:db/migration
     default-schema: public
     baseline-on-migrate: true
+stripe:
+  api:
+    key: pk_test_51Q7k32RusRKcok4W1e4ohkIAE7fM5VdiqVJdxwxQTgsBNK9C9K3Q01oFkD7rB7EYaUzl3w4rtag7g2p7rOQUPAXJ00g0UqdqKj
+    secret: sk_test_51Q7k32RusRKcok4WL9VIT5BBMbZZCSoCAzjPcLopJ4OslV8jqTp6kzqFJ6Z3qlaTBjDH78Wj1VCDIH5tXyBYyszn00yTAWN149
 
 logging:
   level:
