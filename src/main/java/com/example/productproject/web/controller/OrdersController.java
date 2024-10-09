@@ -4,6 +4,7 @@ import com.example.productproject.exception.InvalidDtoException;
 import com.example.productproject.exception.InvalidProductException;
 import com.example.productproject.web.dto.OrdersDTO;
 import com.example.productproject.web.service.OrdersService;
+import com.stripe.exception.StripeException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -27,13 +28,12 @@ public class OrdersController {
     }
 
     @PostMapping("/orders")
-    public ResponseEntity<String> createOrder(@RequestBody OrdersDTO ordersDTO) throws InvalidDtoException, InvalidProductException {
+    public ResponseEntity<String> createOrder(@RequestBody OrdersDTO ordersDTO) throws InvalidDtoException, InvalidProductException, StripeException {
         List<String> violations = verifyDTO(ordersDTO);
         if(!violations.isEmpty()){
             throw new InvalidDtoException(violations);
         }
-        ordersService.createSessionCheckout(ordersDTO);
-        return ResponseEntity.ok("a");
+        return ResponseEntity.ok(ordersService.createSessionCheckout(ordersDTO));
     }
 
     private List<String> verifyDTO(OrdersDTO ordersDTO){
