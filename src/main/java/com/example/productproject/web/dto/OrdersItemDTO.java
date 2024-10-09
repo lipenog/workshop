@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class OrdersItemDTO {
     @NotNull(message = "orders.error.item.productID")
     @Min(value = 0, message = "orders.error.item.productID")
-    private int productID;
+    private Long productID;
     @NotNull(message = "orders.error.item.productQuantity")
     @Min(value = 1, message = "orders.error.item.productQuantity")
     private int quantity;

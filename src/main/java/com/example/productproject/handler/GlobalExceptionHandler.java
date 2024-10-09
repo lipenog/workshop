@@ -1,6 +1,7 @@
 package com.example.productproject.handler;
 
 import com.example.productproject.exception.InvalidDtoException;
+import com.example.productproject.exception.InvalidProductException;
 import com.example.productproject.web.controller.ProductsController;
 import com.example.productproject.web.dto.ErrorDTO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,6 +41,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidProductException.class)
+    public ResponseEntity<ErrorDTO> handleProductException(InvalidProductException ex){
+        String message = formatProductError(ex.getProductID(), ex.getErrorMessage());
+        String endpoint = getRequestURI();
+        ErrorDTO errorDTO = new ErrorDTO(endpoint, message, LocalDateTime.now());
+        return new ResponseEntity<>(errorDTO, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Void> handleGenericException(Exception ex) {
         logger.error(ex.getMessage());
@@ -48,7 +57,6 @@ public class GlobalExceptionHandler {
 
     private String formatErrorMessage(List<String> errorMessages){
         Locale currentLocale = LocaleContextHolder.getLocale();
-        System.out.println(currentLocale);
         return errorMessages.stream()
                 .map(e -> formatErrorMessage(e, currentLocale))
                 .collect(Collectors.joining("\n"))
@@ -57,6 +65,12 @@ public class GlobalExceptionHandler {
 
     private String formatErrorMessage(String errorMessage, Locale locale){
         return messageSource.getMessage(errorMessage, null, locale);
+    }
+
+    private String formatProductError(Long productID, String errorMessage){
+        Locale currentLocale = LocaleContextHolder.getLocale();
+        Object[] args = {productID};
+        return messageSource.getMessage(errorMessage, args, currentLocale);
     }
 
     private String getRequestURI(){

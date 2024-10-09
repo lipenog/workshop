@@ -1,10 +1,9 @@
 package com.example.productproject.web.controller;
 
 import com.example.productproject.exception.InvalidDtoException;
+import com.example.productproject.exception.InvalidProductException;
 import com.example.productproject.web.dto.OrdersDTO;
-import com.example.productproject.web.dto.OrdersItemDTO;
-import com.example.productproject.web.dto.ProductsDTO;
-import com.example.productproject.web.service.ProductsService;
+import com.example.productproject.web.service.OrdersService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -20,19 +19,20 @@ import java.util.Set;
 
 @RestController
 public class OrdersController {
-    private final ProductsService productsService;
+    private final OrdersService ordersService;
 
     @Autowired
-    public OrdersController(ProductsService productsService) {
-        this.productsService = productsService;
+    public OrdersController(OrdersService ordersService) {
+        this.ordersService = ordersService;
     }
 
     @PostMapping("/orders")
-    public ResponseEntity<String> createOrder(@RequestBody OrdersDTO ordersDTO) throws InvalidDtoException {
+    public ResponseEntity<String> createOrder(@RequestBody OrdersDTO ordersDTO) throws InvalidDtoException, InvalidProductException {
         List<String> violations = verifyDTO(ordersDTO);
         if(!violations.isEmpty()){
             throw new InvalidDtoException(violations);
         }
+        ordersService.createSessionCheckout(ordersDTO);
         return ResponseEntity.ok("a");
     }
 
