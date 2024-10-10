@@ -12,7 +12,7 @@ CREATE TABLE public.orders(
     PRIMARY KEY (id)
 );
 
-CREATE TABLE public.ordersItems(
+CREATE TABLE public.orders_items(
     id serial NOT NULL,
     order_id INT NOT NULL,
     product_id INT NOT NULL,

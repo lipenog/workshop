@@ -31,15 +31,11 @@ public class OrdersService {
 
     public String createSessionCheckout(OrdersDTO ordersDTO) throws InvalidProductException, StripeException {
         Orders entity = new Orders();
-        // order item entity
-        Set<OrdersItems> entityOrdersItems = new HashSet<>();
 
         List<OrdersItemDTO> orderItemsList = ordersDTO.getProducts();
 
-
         // Maps the stripe price id and the quantity
         HashMap<Products, Integer> map = new HashMap<>();
-
         orderItemsList.forEach(item -> {
             // get the product based on the id
             Optional<Products> products = productsRepository.findById(item.getProductID());
@@ -50,6 +46,16 @@ public class OrdersService {
                 return item.getQuantity() + v;
             });
         });
+
+        // Maps the order items entity
+        Set<OrdersItems> ordersItemsEntitySet = map.entrySet()
+                .stream()
+                .map(e -> new OrdersItems(null, entity ,e.getKey(), e.getValue()))
+                .collect(Collectors.toSet());
+        entity.setOrdersItemsSet(ordersItemsEntitySet);
+
+        // Persists the order entity with the items
+        ordersRepository.save(entity);
 
         Session session = createPaymentLink(map);
         return session.getUrl();
