@@ -28,7 +28,9 @@ public class OrdersService {
         this.ordersRepository = ordersRepository;
         this.productsRepository = productsRepository;
     }
-
+    public List<Orders> getAllOrders(){
+        return ordersRepository.findAll();
+    }
     public String createSessionCheckout(OrdersDTO ordersDTO) throws InvalidProductException, StripeException {
         Orders entity = new Orders();
 
