@@ -1,16 +1,15 @@
 package com.example.productproject.web.entity;
 
+import com.example.productproject.web.dto.OrdersDTO;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Set;
 
 @Entity
 @NoArgsConstructor @AllArgsConstructor
 @Getter @Setter
+@Builder
 public class Orders {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

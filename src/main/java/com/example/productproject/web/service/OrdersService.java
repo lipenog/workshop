@@ -3,52 +3,78 @@ package com.example.productproject.web.service;
 import com.example.productproject.exception.InvalidProductException;
 import com.example.productproject.web.dto.OrdersDTO;
 import com.example.productproject.web.dto.OrdersItemDTO;
+import com.example.productproject.web.entity.Orders;
+import com.example.productproject.web.entity.OrdersItems;
 import com.example.productproject.web.entity.Products;
+import com.example.productproject.web.repository.OrdersRepository;
 import com.example.productproject.web.repository.ProductsRepository;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Price;
 import com.stripe.model.Product;
 import com.stripe.model.checkout.Session;
-import com.stripe.param.PaymentLinkCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrdersService {
+    private final OrdersRepository ordersRepository;
     private final ProductsRepository productsRepository;
 
     @Autowired
-    public OrdersService(ProductsRepository productsRepository) {
+    public OrdersService(OrdersRepository ordersRepository, ProductsRepository productsRepository) {
+        this.ordersRepository = ordersRepository;
         this.productsRepository = productsRepository;
     }
 
     public String createSessionCheckout(OrdersDTO ordersDTO) throws InvalidProductException, StripeException {
+        Orders entity = new Orders();
+        // order item entity
+        Set<OrdersItems> entityOrdersItems = new HashSet<>();
+
         List<OrdersItemDTO> orderItemsList = ordersDTO.getProducts();
+
+
         // Maps the stripe price id and the quantity
-        HashMap<String, Integer> map = new HashMap<>();
-        for(OrdersItemDTO item : orderItemsList){
+        HashMap<Products, Integer> map = new HashMap<>();
+
+        orderItemsList.forEach(item -> {
             // get the product based on the id
             Optional<Products> products = productsRepository.findById(item.getProductID());
             if(products.isEmpty()) throw new InvalidProductException(item.getProductID(), "orders.error.item.productExists");
-            // get the stripe product with the stripe id
-            Product resource = Product.retrieve(products.get().getStripeID());
             // if the key is already in the map sums the quantities
-            map.compute(resource.getDefaultPrice(), (k,v) -> {
+            map.compute(products.get(), (k, v) -> {
                 if(v == null) return item.getQuantity();
-
-                return v + item.getQuantity();
+                return item.getQuantity() + v;
             });
-        }
+        });
+
         Session session = createPaymentLink(map);
         return session.getUrl();
     }
+    private Session createPaymentLink(HashMap<Products, Integer> map) throws StripeException {
+        Map<String, Integer> priceIDMap = map.entrySet()
+                .stream()
+                .collect(
+                        Collectors.toMap(
+                                productsIntegerEntry -> {
+                                    Products products = productsIntegerEntry.getKey();
+                                    try {
+                                        // get the stripe product with the stripe id
+                                        Product resource = Product.retrieve(products.getStripeID());
+                                        // makes the map key the price ID
+                                        return resource.getDefaultPrice();
+                                    } catch (StripeException e) {
+                                        throw new InvalidProductException(products.getId(), "order.error.item.productStripe");
+                                    }
+                                },
+                                // keeps the quantity
+                                Map.Entry::getValue
+                        )
+                );
 
-    private Session createPaymentLink(HashMap<String, Integer> map) throws StripeException {
         // gera o link de pagamento
         SessionCreateParams sessionParams = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
@@ -58,7 +84,7 @@ public class OrdersService {
                                 ShippingAddressCollection.builder()
                                 .addAllAllowedCountry(getAllowedCountries())
                                 .build())
-                .addAllLineItem(getLineItems(map))
+                .addAllLineItem(getLineItems(priceIDMap))
                 .build();
         return Session.create(sessionParams);
     }
@@ -69,7 +95,7 @@ public class OrdersService {
                 SessionCreateParams.ShippingAddressCollection.AllowedCountry.FR);
     }
 
-    private List<SessionCreateParams.LineItem> getLineItems(HashMap<String, Integer> map) {
+    private List<SessionCreateParams.LineItem> getLineItems(Map<String, Integer> map) {
         return map.entrySet().stream().map(e -> {
             String priceID = e.getKey();
             Integer quantity = e.getValue();

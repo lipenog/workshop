@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor @Getter
-public class InvalidProductException extends Exception{
+public class InvalidProductException extends RuntimeException{
     private Long productID;
     private String errorMessage;
 }
