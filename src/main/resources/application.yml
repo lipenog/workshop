@@ -3,7 +3,6 @@ spring:
     active: dev
 
 server:
-  address: 127.0.0.1
   port: 9091
   servlet:
     context-path: /api/v1
