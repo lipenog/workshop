@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/workshop
     username: luiz
-    password: 123456
+    password: luiz
     driver-class-name: org.postgresql.Driver
   flyway:
     locations: classpath:db/migration
