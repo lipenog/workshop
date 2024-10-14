@@ -25,6 +25,7 @@ public class Orders {
     @Column(name = "postal_code")
     private String postalCode;
     private String state;
+    private Boolean payed;
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER, mappedBy = "orders")
     private Set<OrdersItems> ordersItemsSet;
 }

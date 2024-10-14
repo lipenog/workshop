@@ -9,9 +9,11 @@ import com.example.productproject.web.entity.Products;
 import com.example.productproject.web.repository.OrdersRepository;
 import com.example.productproject.web.repository.ProductsRepository;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Address;
 import com.stripe.model.Product;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,41 @@ public class OrdersService {
     public List<Orders> getAllOrders(){
         return ordersRepository.findAll();
     }
+
+    public void updatePayedOrder(Session session){
+        Address address = session.getShippingDetails().getAddress();
+        Session.CustomerDetails customerDetails = session.getCustomerDetails();
+
+        // pega dos metadados a order ID
+        Long orderID = Long.valueOf(session.getMetadata().get("orderID"));
+
+        Optional<Orders> ordersOptional = ordersRepository.findById(orderID);
+
+        if(ordersOptional.isEmpty()) throw new RuntimeException();
+
+        Orders original = ordersOptional.get();
+
+        Orders.OrdersBuilder ordersBuilder = Orders.builder();
+
+        // copy the id and the items to the new order
+        Orders orders = ordersBuilder
+                .id(original.getId())
+                .name(customerDetails.getName())
+                .mail(customerDetails.getEmail())
+                .phone(customerDetails.getPhone())
+                .city(address.getCity())
+                .country(address.getCountry())
+                .line1(address.getLine1())
+                .line2(address.getLine2())
+                .postalCode(address.getPostalCode())
+                .state(address.getState())
+                .payed(true)
+                .ordersItemsSet(original.getOrdersItemsSet())
+                .build();
+
+        ordersRepository.save(orders);
+    }
+
     public String createSessionCheckout(OrdersDTO ordersDTO) throws InvalidProductException, StripeException {
         Orders entity = new Orders();
 
@@ -55,10 +92,10 @@ public class OrdersService {
                 .map(e -> new OrdersItems(null, entity ,e.getKey(), e.getValue()))
                 .collect(Collectors.toSet());
         entity.setOrdersItemsSet(ordersItemsEntitySet);
-
+        entity.setPayed(false);
         // Persists the order entity with the items
         Orders orders = ordersRepository.save(entity);
-        
+
         Session session = createPaymentLink(map, orders.getId());
         return session.getUrl();
     }

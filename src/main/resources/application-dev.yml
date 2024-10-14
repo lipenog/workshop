@@ -14,7 +14,7 @@ spring:
 stripe:
   api:
     key: sk_test_51Q7k32RusRKcok4WL9VIT5BBMbZZCSoCAzjPcLopJ4OslV8jqTp6kzqFJ6Z3qlaTBjDH78Wj1VCDIH5tXyBYyszn00yTAWN149
-    secret: todo
+    secret: whsec_k2yL5437EPhC8Vu9Y8UV51dQyqU1lAga
 
 logging:
   level:

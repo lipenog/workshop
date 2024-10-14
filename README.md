@@ -1,0 +1,10 @@
+ - Springboot 3
+ - Postgresql
+ - Flyway db
+ - Springboot messages
+ - Rest api
+ - Exception handlers
+ - Stripe payment api
+ - Webhook
+ - docker
+ - deploy
