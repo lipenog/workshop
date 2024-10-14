@@ -57,12 +57,12 @@ public class OrdersService {
         entity.setOrdersItemsSet(ordersItemsEntitySet);
 
         // Persists the order entity with the items
-        ordersRepository.save(entity);
-
-        Session session = createPaymentLink(map);
+        Orders orders = ordersRepository.save(entity);
+        
+        Session session = createPaymentLink(map, orders.getId());
         return session.getUrl();
     }
-    private Session createPaymentLink(HashMap<Products, Integer> map) throws StripeException {
+    private Session createPaymentLink(HashMap<Products, Integer> map, Long orderID) throws StripeException {
         Map<String, Integer> priceIDMap = map.entrySet()
                 .stream()
                 .collect(
@@ -93,6 +93,7 @@ public class OrdersService {
                                 .addAllAllowedCountry(getAllowedCountries())
                                 .build())
                 .addAllLineItem(getLineItems(priceIDMap))
+                .putMetadata("orderID", String.valueOf(orderID))
                 .build();
         return Session.create(sessionParams);
     }
