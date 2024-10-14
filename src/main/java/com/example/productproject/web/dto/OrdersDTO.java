@@ -38,6 +38,8 @@ public class OrdersDTO {
     private String postalCode;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String state;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Boolean payed;
 
     public OrdersDTO(Orders orders){
         this.id = orders.getId();
@@ -50,6 +52,7 @@ public class OrdersDTO {
         this.line2 = orders.getLine2();
         this.postalCode = orders.getPostalCode();
         this.state = orders.getState();
+        this.payed = orders.getPayed();
         this.products = orders.getOrdersItemsSet().stream().map(OrdersItemDTO::new).collect(Collectors.toList());
     }
 }
